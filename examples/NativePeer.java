@@ -5,7 +5,7 @@ class Calculator {
 
     private long peer;
     protected native void initialize();
-    protected native void finalize() throws Throwable;
+//     protected native void finalize() throws Throwable;
 
     public native long add(long a, long b);
     public native long subtract(long a, long b);
@@ -20,6 +20,6 @@ public class NativePeer {
         System.out.println("8 - 4 = " + calculator.subtract(8, 4));
 
         // You wouldn't normally use this; it's here to show that the native finalizer does get executed.
-        System.runFinalizersOnExit(true);
+//         System.runFinalizersOnExit(true);
     }
 }

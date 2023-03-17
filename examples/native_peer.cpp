@@ -23,7 +23,7 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*)
     jni::RegisterNativePeer<Calculator>(env, jni::Class<Calculator>::Find(env), "peer",
         jni::MakePeer<Calculator>,
         "initialize",
-        "finalize",
+//        "finalize",
         METHOD(&Calculator::Add, "add"),
         METHOD(&Calculator::Subtract, "subtract"));
 
