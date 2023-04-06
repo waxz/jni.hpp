@@ -26,8 +26,18 @@
 #ifndef _JAVASOFT_JNI_MD_H_
 #define _JAVASOFT_JNI_MD_H_
 
+
+
+#if defined(_WIN32) || defined(__CYGWIN__)
+#define JNIEXPORT   __declspec(dllexport)
+#define JNIIMPORT   __declspec(dllimport)
+#else
 #define JNIEXPORT     __attribute__((visibility("default")))
 #define JNIIMPORT     __attribute__((visibility("default")))
+#endif
+
+
+
 #define JNICALL
 
 typedef int jint;
