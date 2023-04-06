@@ -18,6 +18,8 @@
 #include <utility>
 #include <algorithm>
 #include <iostream>
+#include <mutex>
+
 
 
 #include <boost/graph/adjacency_list.hpp>
@@ -58,26 +60,24 @@ struct PathFinding{
     graph_t g; // construct a graph object
 
     std::vector<vertex_t> vertex_vec;
-    std::vector<float> distances;
-    std::vector<vertex_t> pMap;
-    std::vector<vertex_t> path;
-    std::vector<vertex_t> forward_path;
-    std::vector<size_t> forward_path_id;
+
 
     bool write_dot = false;
+
+    std::mutex mtx;
+
+
 
 
     void clear(){
         g.clear();
         vertex_vec.clear();
-        distances.clear();
-        pMap.clear();
-        path.clear();
-        forward_path.clear();
-        forward_path_id.clear();
     }
 
-    int createGraph(const std::vector<Vertex>& node_list, std::vector<EdgePair>& edge_list){
+    int createGraph(const std::vector<Vertex>& node_list,const std::vector<EdgePair>& edge_list){
+
+        std::lock_guard<std::mutex> locker(mtx);
+
         g.clear();
 
         size_t node_num = node_list.size();
@@ -136,7 +136,7 @@ struct PathFinding{
         return 0;
     }
 
-    int findPath(size_t id_start,size_t id_end){
+    int findPath(size_t id_start,size_t id_end,std::vector<size_t>& forward_path_id)const{
         const size_t numVertices = boost::num_vertices(g);
         size_t node_num = vertex_vec.size();
 
@@ -144,13 +144,18 @@ struct PathFinding{
             return -1;
         }
         if(id_start >= node_num
-           &&id_end >= node_num
-           && id_start == id_end
+           || id_end >= node_num
+           || id_start == id_end
                 ){
             return -2;
         }
 
         {
+
+            std::vector<vertex_t> pMap;
+            std::vector<float> distances;
+            std::vector<vertex_t> path;
+            std::vector<vertex_t> forward_path;
 
 
             distances.resize(numVertices);
@@ -347,19 +352,20 @@ struct PathFinder: public JNIBase{
         return finder.createGraph(node_list, edge_list);
     }
 
-    jni::Local<jni::String>  solve(jni::JNIEnv& env, jni::jint id_start,jni::jint id_end){
+    jni::Global<jni::String>  solve(jni::JNIEnv& env, jni::jint id_start,jni::jint id_end)  {
 
 
         size_t c_id_start = id_start;
 
         size_t c_id_end = id_end;
 
-        int rt = finder.findPath(c_id_start,c_id_end);
+        std::vector<size_t>  forward_path_id;
+        int rt =  finder.findPath(c_id_start,c_id_end,forward_path_id);
         std::string  std_str;
 
 
         if(rt == 0 ){
-            auto& path = finder.forward_path_id;
+            auto& path = forward_path_id;
             nlohmann::json path_json = path;
             std_str = path_json.dump();
 
@@ -371,7 +377,10 @@ struct PathFinder: public JNIBase{
 
         }
         jni::Local<jni::String> std_string_to_java_string = jni::Make<jni::String>( env, std_str );
-        return std_string_to_java_string;
+
+        auto str = jni::NewGlobal(env, std_string_to_java_string);
+
+        return str;
     }
     jni::Local<jni::String>  hello(jni::JNIEnv& env){
 
