@@ -9,6 +9,7 @@
 
 #include <type_traits>
 #include <cstdlib>
+#include <tuple>
 
 namespace jni
    {

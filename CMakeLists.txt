@@ -32,10 +32,11 @@ set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
 #set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.3.1-6), libc6 (<< 3)")
 
 
-include(cmake/set_ros.cmake)
 
 set(build_ros_lib OFF)
 if (build_ros_lib)
+    include(cmake/set_ros.cmake)
+
     #roscpp
     set(roscpp_ROOT ${ROS_INSTALL_PATH}/share)
     find_package(roscpp REQUIRED )

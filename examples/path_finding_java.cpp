@@ -352,7 +352,7 @@ struct PathFinder: public JNIBase{
         return finder.createGraph(node_list, edge_list);
     }
 
-    jni::Global<jni::String>  solve(jni::JNIEnv& env, jni::jint id_start,jni::jint id_end)  {
+    jni::Local<jni::String>  solve(jni::JNIEnv& env, jni::jint id_start,jni::jint id_end)  {
 
 
         size_t c_id_start = id_start;
@@ -378,9 +378,9 @@ struct PathFinder: public JNIBase{
         }
         jni::Local<jni::String> std_string_to_java_string = jni::Make<jni::String>( env, std_str );
 
-        auto str = jni::NewGlobal(env, std_string_to_java_string);
+//        auto str = jni::NewGlobal(env, std_string_to_java_string);
 
-        return str;
+        return std_string_to_java_string;
     }
     jni::Local<jni::String>  hello(jni::JNIEnv& env){
 
